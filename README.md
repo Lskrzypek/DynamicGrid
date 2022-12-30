@@ -53,4 +53,22 @@ public class TransactionsODataController : ODataController
     }
 }
 ```
-Kontroler ten różni się od zwykłego kontrolera kilkoma rzeczami. Przede wszystkim dziedziczy po klasie ODataController zamiast ControllerBase i w ten sposób informujemy, że będziemy chcieli używać protokół OData. Druga rzecz, to atrybut [EnableQuery] - wskazujemy w ten sposób, że endpoint może być odpytywany przez składnię OData. Co ważne jako wynik możemy zwrócić interfejs IQueryable.
+Kontroler ten różni się od zwykłego kontrolera kilkoma rzeczami. Przede wszystkim dziedziczy po klasie ODataController zamiast ControllerBase i w ten sposób informuje, że będzie używał protokółu OData. Druga rzecz, to atrybut [EnableQuery] - wskazujemy w ten sposób, że endpoint może być odpytywany przez składnię OData. Co ważne jako wynik możemy zwrócić interfejs IQueryable.
+
+Aby kontroler mógł działać, musimy zarejestrować go w Program.cs:
+```
+builder.Services
+    .AddControllers()
+    .AddOData(options => options
+        .EnableQueryFeatures()
+        .AddRouteComponents("/", GetEdmModel()));
+
+static IEdmModel GetEdmModel()
+{
+    var builder = new ODataConventionModelBuilder();
+    builder.EntitySet<Transaction>("TransactionsOData");
+    return builder.GetEdmModel();
+}
+```
+
+Po uruchomieniu, w naszym API możemy budować zapytania OData.
