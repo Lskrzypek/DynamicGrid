@@ -1,6 +1,9 @@
 # Dynamiczny Grid - Blazor/Radzen/EF/OData
 ## Problem
-Załóżmy, że w aplikacji webowej musisz utworzyć grida wyświetlającego rekordy z tabeli w bazie danych. Grid musi obsługiwać stronicowanie, a także mieć możliwość sortowania i filtrowania po każdej z kolumn. Jest jeszcze jeden warunek: z bazy danych mają być odczytywane tylko te rekordy, które w danym momencie potrzebujemy. Informacje o sortowaniu i zakresie danych musimy więc w jakiś sposób przekazać przez API, a na końcu przetworzyć na zapytanie do bazy danych.
+Załóżmy, że w aplikacji webowej musisz utworzyć grida wyświetlającego rekordy z tabeli w bazie danych. Chcemy, żeby grid spełniał następujace warunki:
+- grid musi obsługiwać stronicowanie
+- grid musi mieć możliwość sortowania i filtrowania po każdej z kolumn
+- z bazy danych mają być odczytywane tylko te rekordy, które w danym momencie potrzebujemy. Informacje o sortowaniu i zakresie danych musimy więc w jakiś sposób przekazać przez API, a na końcu przetworzyć na zapytanie do bazy danych.
 ## Rozwiązanie
 Poniższe rozwiązanie używa takich technologii jak:
 - Blazor – jako frontend
@@ -20,3 +23,16 @@ informuje serwer API, że chcemy produkty z nazwą równą ‘Milk’ ale jednoc
 
 Język tych zapytań jest opisany tutaj:
 https://learn.microsoft.com/en-us/odata/concepts/queryoptions-overview
+### Domena
+W przykładowym programie będziemy chcieli wyświetlić Grida z transakcjami. Nasze transakcje będą zawierać informacje o dacie, kwocie, opisie i dwóch kontach - jedno z którego przelewamy pieniądze i drugie na które robimy przelew. Domena jest więc bardzo prosta. Stanowi ją jedna klasa Transaction:
+```
+public class Transaction
+{
+    public Guid Id { get; set; }
+    public DateTime Date { get; set; }
+    public int SourceAccount { get; set; }
+    public int DestinationAccount { get; set; }
+    public decimal Amount { get; set; }
+    public string Description { get; set; } = "";
+}
+```
