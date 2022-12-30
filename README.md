@@ -53,7 +53,7 @@ public class TransactionsODataController : ODataController
     }
 }
 ```
-Kontroler ten różni się od zwykłego kontrolera kilkoma rzeczami. Przede wszystkim dziedziczy po klasie ODataController zamiast ControllerBase i w ten sposób informuje, że będzie używał protokółu OData. Druga rzecz, to atrybut [EnableQuery] - wskazujemy w ten sposób, że endpoint może być odpytywany przez składnię OData. Co ważne jako wynik możemy zwrócić interfejs IQueryable.
+Kontroler ten różni się od zwykłego kontrolera kilkoma rzeczami. Przede wszystkim dziedziczy po klasie ODataController zamiast ControllerBase i w ten sposób informuje, że będzie używał protokółu OData. Druga rzecz, to atrybut [EnableQuery] - wskazujemy w ten sposób, że endpoint może być odpytywany przez składnię OData. Jeśli chodzi o wnętrze metody, to jest ono bardzo proste. Po prostu zwracamy konkretny DataSet z naszego DBContextu Entity Framework. Co ważne jako wynik możemy zwrócić interfejs IQueryable.
 
 Aby kontroler mógł działać, musimy zarejestrować go w Program.cs:
 ```
