@@ -11,7 +11,7 @@ Poniższe rozwiązanie używa takich technologii jak:
 - Entity Framework – odczyt z bazy danych
 - OData – Microsoftowy protokół sieciowy
 
-Na szczególną uwagę zasługuje tutaj OData. Jest to rozwijany przez Microsoft protokół, który umożliwia łatwe przesyłanie danych przez API. Wprowadza on swego rodzaju język zapytań, które można kierować do API.
+Na szczególną uwagę zasługuje tutaj OData i na nim się skupię. Jest to rozwijany przez Microsoft protokół, który umożliwia łatwe przesyłanie danych przez API. Wprowadza on swego rodzaju język zapytań, które można kierować do API.
 
 Na przykład wysłanie zapytania:
 ```http://host/service/Products?$filter=Name eq 'Milk'```
@@ -36,3 +36,21 @@ public class Transaction
     public string Description { get; set; } = "";
 }
 ```
+### API
+Żeby skorzystać z dobrodziejstw OData potrzebujemy zainstalować paczkę nugetową:
+```
+Microsoft.AspNetCore.OData
+```
+Druga rzecz, to utworzenie kontrolera:
+```
+public class TransactionsODataController : ODataController
+{
+    [HttpGet]
+    [EnableQuery]
+    public IQueryable<Transaction> Get([FromServices] DynamicGridDBContext dbContext)
+    {
+        return dbContext.Transactions;
+    }
+}
+```
+
