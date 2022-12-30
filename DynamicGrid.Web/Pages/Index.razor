@@ -1,0 +1,34 @@
+﻿@page "/"
+@inject DataLoader dataLoader
+
+@using Domain
+@using DynamicGrid.Web.Services
+@using Radzen
+@using Radzen.Blazor
+
+<PageTitle>Radzen/Blazor/Odata/EF Grid</PageTitle>
+    
+<RadzenDataGrid Data="@transactions" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="5" 
+    LoadData="@LoadData" Count="@allTransactionsCount" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+    FilterMode="FilterMode.Advanced" >
+    <Columns>
+        <RadzenDataGridColumn TItem="Transaction" Property="Date" Title="Date" FormatString="{0:yyyy-MM-dd}" />
+        <RadzenDataGridColumn TItem="Transaction" Property="SourceAccount" Title="Source Account" />
+        <RadzenDataGridColumn TItem="Transaction" Property="DestinationAccount" Title="Destination Account" />
+        <RadzenDataGridColumn TItem="Transaction" Property="Amount" Title="Amount"/>
+        <RadzenDataGridColumn TItem="Transaction" Property="Description" Title="Description" />
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    IEnumerable<Transaction>? transactions;
+    int allTransactionsCount;
+
+    async Task LoadData(LoadDataArgs args)
+    {
+        var transactionsResult = await dataLoader.GetTransactionsWithOData(args.Filter, args.Top, args.Skip, args.OrderBy);
+        
+        transactions = transactionsResult.Value.AsODataEnumerable();
+        allTransactionsCount = transactionsResult.Count;
+    }
+}
