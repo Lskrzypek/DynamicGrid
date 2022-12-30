@@ -53,4 +53,4 @@ public class TransactionsODataController : ODataController
     }
 }
 ```
-
+Kontroler ten różni się od zwykłego kontrolera kilkoma rzeczami. Przede wszystkim dziedziczy po klasie ODataController zamiast ControllerBase i w ten sposób informujemy, że będziemy chcieli używać protokół OData. Druga rzecz, to atrybut [EnableQuery] - wskazujemy w ten sposób, że endpoint może być odpytywany przez składnię OData. Co ważne jako wynik możemy zwrócić interfejs IQueryable.
