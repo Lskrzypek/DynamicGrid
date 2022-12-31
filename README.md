@@ -5,7 +5,7 @@ Załóżmy, że w aplikacji webowej musisz utworzyć grida wyświetlającego rek
 - grid musi mieć możliwość sortowania i filtrowania po każdej z kolumn
 - z bazy danych mają być odczytywane tylko te rekordy, które w danym momencie potrzebujemy. Informacje o sortowaniu i zakresie danych musimy więc w jakiś sposób przekazać przez API, a na końcu przetworzyć na zapytanie do bazy danych.
 ## Rozwiązanie
-Poniższe rozwiązanie używa takich technologii jak:
+Poniżej prezentuję przykładowe rozwiązanie. Używam takich technologii jak:
 - Blazor – jako frontend
 - Radzen – darmowe kontrolki, w tym Grid
 - Entity Framework – odczyt z bazy danych
@@ -72,3 +72,68 @@ static IEdmModel GetEdmModel()
 ```
 
 Po uruchomieniu, w naszym API możemy budować zapytania OData.
+### Web Client
+Utworzyłem aplikację Blazor z szablonu. Następnie usunąłem wszystko, co jest związane z przykładową implementacją Microsoftu, żeby maksymalnie uprościć nasz program. Zostawiłem jedynie stronę Index.razor.
+
+Zainstalowałem następującą paczkę nuget:
+
+```Radzen.Blazor```
+
+W pliku index.razor umieściłem kontrolkę RadzenDataGrid. Więcej można o niej przeczytać w dokumentacji Radzen: https://blazor.radzen.com/datagrid
+
+```
+<RadzenDataGrid Data="@transactions" AllowSorting="true" AllowFiltering="true" AllowPaging="true" PageSize="5" 
+    LoadData="@LoadData" Count="@allTransactionsCount" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+    FilterMode="FilterMode.Advanced" >
+    <Columns>
+        <RadzenDataGridColumn TItem="Transaction" Property="Date" Title="Date" FormatString="{0:yyyy-MM-dd}" />
+        <RadzenDataGridColumn TItem="Transaction" Property="SourceAccount" Title="Source Account" />
+        <RadzenDataGridColumn TItem="Transaction" Property="DestinationAccount" Title="Destination Account" />
+        <RadzenDataGridColumn TItem="Transaction" Property="Amount" Title="Amount"/>
+        <RadzenDataGridColumn TItem="Transaction" Property="Description" Title="Description" />
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+    IEnumerable<Transaction>? transactions;
+    int allTransactionsCount;
+
+    async Task LoadData(LoadDataArgs args)
+    {
+        var transactionsResult = await dataLoader.GetTransactionsWithOData(args.Filter, args.Top, args.Skip, args.OrderBy);
+        
+        transactions = transactionsResult.Value.AsODataEnumerable();
+        allTransactionsCount = transactionsResult.Count;
+    }
+}
+```
+Kilka rzeczy zasługuje tutaj na uwagę:
+- transactions - zmienna, która wskazuje na transakcje, wyświetlane na Gridzie
+- allTransactionsCount - ilość wszystkich transakcji w bazie danych. Ta liczba różni się od transactions.Count(). Tak jak pisałem na początku, grida chcemy zasilać tylko tymi danymi, które w tym momęcie potrzebujemy. Będzie to wynikało ze stronicowania, filtrowania i sortowania. Natomiast allTransactionsCount to liczba wszystkich transakcji z bazy danych i ją trzeba ustawić oddzielnie.
+- LoadData - ta metoda będzie wywoływana za każdym razem, kiedy grid będzie potrzebował dane. Czyli przy przejściu na inną stronę, albo przy zmianie sortowania czy filtrowania.
+
+Sam odczyt danych z API znajduje się w pliku DataLoader.cs:
+```
+public class DataLoader
+{
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public DataLoader(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
+
+    public async Task<ODataServiceResult<Transaction>> GetTransactionsWithOData(string? filter, int? top, int? skip, string? orderby)
+    {
+        var uri = new Uri("https://localhost:7234/TransactionsOData")
+            .GetODataUri(filter, top, skip, orderby, expand: null, select: null, count: true);
+
+        var response = await _httpClientFactory.CreateClient().GetAsync(uri);
+
+        return await response.ReadAsync<ODataServiceResult<Transaction>>();
+    }
+}
+```
+Kontrolki Radzen świetnie współpracują z OData. Biblioteka Radzen zawiera między innymi rozszerzenie klasy Uri na metode GetODataUri. Konwertuje ona sortowania i filtrowanie Radzenowe na składnię OData. Dodatkowo wprowadza typ ODataServiceResult, który przechowuje zarówno odczytane z API wiersze, jak i całkowitą ilość wierszy.
+
