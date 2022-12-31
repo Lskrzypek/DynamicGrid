@@ -5,6 +5,8 @@ Załóżmy, że w aplikacji webowej musisz utworzyć grida wyświetlającego rek
 - grid musi mieć możliwość sortowania i filtrowania po każdej z kolumn
 - z bazy danych mają być odczytywane tylko te rekordy, które w danym momencie potrzebujemy. Informacje o sortowaniu i zakresie danych musimy więc w jakiś sposób przekazać przez API, a na końcu przetworzyć na zapytanie do bazy danych.
 ## Rozwiązanie
+Efekt można zobaczyc tutaj: https://www.youtube.com/watch?v=0ezhraaV48g
+
 Poniżej prezentuję przykładowe rozwiązanie. Używam takich technologii jak:
 - Blazor – jako frontend
 - Radzen – darmowe kontrolki, w tym Grid
@@ -137,3 +139,5 @@ public class DataLoader
 ```
 Kontrolki Radzen świetnie współpracują z OData. Biblioteka Radzen zawiera między innymi rozszerzenie klasy Uri na metode GetODataUri. Konwertuje ona sortowania i filtrowanie Radzenowe na składnię OData. Dodatkowo wprowadza typ ODataServiceResult, który przechowuje zarówno odczytane z API wiersze, jak i całkowitą ilość wierszy.
 
+## Efekt
+Efekt można zobaczyc tutaj: https://www.youtube.com/watch?v=0ezhraaV48g
